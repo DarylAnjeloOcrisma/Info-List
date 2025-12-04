@@ -15,7 +15,25 @@ interface TableRow {
 
 export default function EnhancedDataTable() {
   const [rows, setRows] = useState<TableRow[]>([]);
+  const [loaded, setLoaded] = useState(false); // <-- IMPORTANT FIX
 
+  // Load saved rows ONLY ONCE
+  useEffect(() => {
+    const saved = localStorage.getItem("tableRows");
+    if (saved) {
+      setRows(JSON.parse(saved));
+    }
+    setLoaded(true);
+  }, []);
+
+  // Save rows ONLY AFTER initial load is complete
+  useEffect(() => {
+    if (loaded) {
+      localStorage.setItem("tableRows", JSON.stringify(rows));
+    }
+  }, [rows, loaded]);
+
+  // --- rest of your state ---
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [filterVariation, setFilterVariation] = useState("All");
@@ -34,7 +52,6 @@ export default function EnhancedDataTable() {
     color: "",
   });
 
-  // Confirm modal state
   const [showConfirm, setShowConfirm] = useState(false);
   const [pendingDeleteId, setPendingDeleteId] = useState<number | null>(null);
   const [pendingBulkDelete, setPendingBulkDelete] = useState(false);
@@ -45,7 +62,7 @@ export default function EnhancedDataTable() {
     return () => clearTimeout(t);
   }, [searchTerm]);
 
-  // Filtering + sorting
+  // Filtering & sorting
   const filtered = useMemo(() => {
     const s = debouncedSearch.toLowerCase();
     const base = rows.filter((r) => {
@@ -57,8 +74,10 @@ export default function EnhancedDataTable() {
         r.plateNo.toLowerCase().includes(s) ||
         r.color.toLowerCase().includes(s) ||
         r.variation.toLowerCase().includes(s);
+
       const matchesVariation =
         filterVariation === "All" || r.variation === filterVariation;
+
       return matchesSearch && matchesVariation;
     });
 
@@ -104,7 +123,9 @@ export default function EnhancedDataTable() {
   const addRow = () => {
     if (!newRow.name || !newRow.email || !newRow.phone || !newRow.variation)
       return;
+
     const newId = Math.max(0, ...rows.map((r) => r.id)) + 1;
+
     setRows((prev) => [
       ...prev,
       {
@@ -117,6 +138,7 @@ export default function EnhancedDataTable() {
         color: newRow.color || "",
       },
     ]);
+
     setNewRow({
       name: "",
       email: "",
@@ -125,14 +147,17 @@ export default function EnhancedDataTable() {
       plateNo: "",
       color: "",
     });
+
     setShowAddForm(false);
   };
 
   const saveEdit = () => {
     if (!editingRow) return;
+
     setRows((prev) =>
       prev.map((r) => (r.id === editingRow.id ? editingRow : r))
     );
+
     setEditingRow(null);
     setShowModal(false);
   };
