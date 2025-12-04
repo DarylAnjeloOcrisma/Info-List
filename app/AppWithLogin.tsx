@@ -9,10 +9,9 @@ export default function AppWithLogin() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const VALID_USERNAME = "admin";
-  const VALID_PASSWORD = "12345";
+  const VALID_USERNAME = process.env.NEXT_PUBLIC_LOGIN_USER;
+  const VALID_PASSWORD = process.env.NEXT_PUBLIC_LOGIN_PASS;
 
-  // Load login session
   useEffect(() => {
     if (localStorage.getItem("loggedIn") === "true") {
       setLoggedIn(true);
