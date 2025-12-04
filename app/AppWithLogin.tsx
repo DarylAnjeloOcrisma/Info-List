@@ -19,7 +19,10 @@ export default function AppWithLogin() {
   }, []);
 
   const handleLogin = () => {
-    if (username === VALID_USERNAME && password === VALID_PASSWORD) {
+    if (
+      username.trim() === VALID_USERNAME &&
+      password.trim() === VALID_PASSWORD
+    ) {
       localStorage.setItem("loggedIn", "true");
       setLoggedIn(true);
       setError("");
@@ -47,28 +50,36 @@ export default function AppWithLogin() {
             </div>
           )}
 
-          <input
-            type="text"
-            placeholder="Username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            className="w-full px-3 py-2 mb-3 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-3 py-2 mb-4 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-
-          <button
-            onClick={handleLogin}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded font-semibold"
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleLogin();
+            }}
           >
-            Login
-          </button>
+            <input
+              type="text"
+              placeholder="Username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="w-full px-3 py-2 mb-3 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-3 py-2 mb-4 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+
+            <button
+              type="submit"
+              disabled={!username.trim() || !password.trim()}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded font-semibold disabled:opacity-50"
+            >
+              Login
+            </button>
+          </form>
         </div>
       </div>
     );
